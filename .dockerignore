@@ -1,0 +1,9 @@
+.git
+.idea
+.vscode
+*.iml
+terraform
+ansible
+k8s
+README.md
+docs

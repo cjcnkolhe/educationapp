@@ -1,0 +1,118 @@
+VEDIT IT COMPANY
+SPRING BOOT + JSP EDUCATION MANAGEMENT SYSTEM
+END-TO-END DEVOPS IMPLEMENTATION
+============================================================
+
+APPLICATION
+-----------
+Student dashboard, student registration, list, edit and delete.
+Course selection. Spring Boot 3, Java 17, JSP, Spring Data JPA.
+H2 is used locally. Optional MySQL profile is included.
+
+IMPORTANT JSP POINT
+-------------------
+JSP application is packaged as WAR, not a normal executable JAR.
+Docker runs the WAR in Tomcat 10.1 with Java 17.
+ROOT.war means the app opens at http://localhost:8080/.
+
+LAB 1 - RUN LOCALLY
+-------------------
+mvn clean package
+java -jar target/educationapp.war
+Open http://localhost:8080/
+
+LAB 2 - GITHUB
+-------------
+git init
+git add .
+git commit -m "Initial education app"
+git branch -M main
+git remote add origin https://github.com/USERNAME/educationapp.git
+git push -u origin main
+
+LAB 3 - MAVEN
+------------
+mvn clean
+mvn compile
+mvn test
+mvn package
+mvn clean verify
+Output: target/educationapp.war
+
+LAB 4 - SONARQUBE
+----------------
+docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+Open http://localhost:9000/, create project and token.
+mvn clean verify sonar:sonar -Dsonar.projectKey=educationapp -Dsonar.host.url=http://localhost:9000 -Dsonar.token=YOUR_TOKEN
+For Jenkins store token in Credentials and configure webhook /sonarqube-webhook/.
+
+LAB 5 - DOCKER
+-------------
+mvn clean package
+docker build -t educationapp:1 .
+docker run -d --name educationapp -p 8080:8080 educationapp:1
+docker logs educationapp
+Push:
+docker login
+docker tag educationapp:1 USERNAME/educationapp:1
+docker push USERNAME/educationapp:1
+
+LAB 6 - ANSIBLE
+--------------
+Install Ansible on control node:
+sudo apt update
+sudo apt install ansible -y
+Copy inventory.ini.example to inventory.ini and edit SSH values.
+ansible -i ansible/inventory.ini all -m ping
+ansible-playbook -i ansible/inventory.ini ansible/setup-ubuntu-tools.yml
+The playbook prepares Ubuntu with Java, Git, Maven and Docker.
+
+LAB 7 - TERRAFORM / EKS
+----------------------
+Review region, supported Kubernetes version, costs and IAM.
+cd terraform
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+Connect:
+aws eks update-kubeconfig --region ap-south-1 --name education-cluster
+kubectl get nodes
+
+LAB 8 - KUBERNETES
+-----------------
+Replace DOCKERHUB_USERNAME in deployment.yaml.
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl get pods -n education
+kubectl get svc -n education
+kubectl logs deployment/educationapp -n education
+
+LAB 9 - JENKINS
+--------------
+Configure JDK17, Maven3, SonarQube server and Docker Hub credential
+ID dockerhub-credentials. Configure Jenkins agent Docker access,
+AWS IAM role and EKS namespace permissions. Edit Jenkinsfile image,
+region and cluster. Create a Pipeline-from-SCM job using this repo.
+Pipeline:
+Checkout -> Maven Build/Test -> SonarQube -> Quality Gate
+-> Docker Build -> Docker Push -> Kubernetes Deploy.
+
+DATABASE
+--------
+H2 is for local learning. For multiple Kubernetes replicas use shared
+database such as RDS MySQL. Set SPRING_PROFILES_ACTIVE=mysql,
+DB_URL, DB_USERNAME and DB_PASSWORD through Kubernetes Secrets.
+Do not store credentials in GitHub.
+
+SECURITY AND COST
+-----------------
+EKS, EC2, NAT Gateway and Load Balancer cost money.
+Restrict Jenkins, SonarQube, SSH and Kubernetes administration access.
+Never commit passwords, tokens, AWS credentials or private keys.
+This is a teaching CRUD application. Add authentication, authorization,
+CSRF protection, validation, audit logging, HTTPS and backups before
+using it for real student records.
+Run terraform destroy only after checking deletion is safe.
