@@ -1,4 +1,4 @@
-# VEDIT Education Management System
+# Education Management System
 
 Spring Boot 3 + Java 17 + JSP + Spring Data JPA. Includes student CRUD, local H2, optional MySQL, Maven, SonarQube, Docker, Jenkins, Ansible, Terraform and Kubernetes examples.
 
