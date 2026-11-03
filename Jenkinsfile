@@ -87,22 +87,21 @@ pipeline {
             }
         }
 
-        stage('Docker Run / Deploy') {
-            steps {
-                sh '''
-                    docker stop $CONTAINER_NAME || true
-                    docker rm $CONTAINER_NAME || true
+       stage('Docker Run / Deploy') {
+    steps {
+        sh '''
+            docker rm -f educationapp || true
 
-                    docker run -d \
-                    --name $CONTAINER_NAME \
-                    --restart unless-stopped \
-                    -p $APP_PORT:8080 \
-                    $DOCKER_IMAGE:latest
+            docker run -d \
+            --name educationapp \
+            --restart unless-stopped \
+            -p 8081:8080 \
+            nanducjc123/educationapprepo:latest
 
-                    docker ps
-                '''
-            }
-        }
+            docker ps
+        '''
+    }
+}
     }
 
     post {
