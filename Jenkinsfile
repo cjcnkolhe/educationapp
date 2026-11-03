@@ -9,8 +9,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/user/repo.git'
+                git branch: 'master',
+                    url: 'https://github.com/cjcnkolhe/educationapp.git'
             }
         }
 
