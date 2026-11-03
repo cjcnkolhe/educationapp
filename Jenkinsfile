@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         SONAR_TOKEN = credentials('sonar-token')
-        DOCKER_IMAGE = 'nanducjc123/educationapprepo/educationapp'
+        DOCKER_IMAGE = 'nanducjc123/educationapprepo'
     }
 
     stages {
