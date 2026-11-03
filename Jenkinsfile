@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    tools { jdk 'JDK17'; maven 'Maven3' }
+    tools { jdk 'JDK17'; maven 'Maven' }
     environment {
         IMAGE = 'DOCKERHUB_USERNAME/educationapp'
         AWS_REGION = 'ap-south-1'
