@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         SONAR_TOKEN = credentials('sonar-token')
-        DOCKER_IMAGE = 'yourdockerhubusername/educationapp'
+        DOCKER_IMAGE = 'YOUR_DOCKERHUB_USERNAME/educationapp'
     }
 
     stages {
@@ -26,20 +26,23 @@ pipeline {
             }
         }
 
-       stage('SonarQube Analysis') {
-    steps {
-        sh '''
-            mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar \
-            -Dsonar.projectKey=my-project \
-            -Dsonar.projectName=my-project \
-            -Dsonar.host.url=http://13.50.232.101:9000 \
-            -Dsonar.token=$SONAR_TOKEN
-        '''
-    }
-}
+        stage('SonarQube Analysis') {
+            steps {
+                sh '''
+                    mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar \
+                    -Dsonar.projectKey=my-project \
+                    -Dsonar.projectName=my-project \
+                    -Dsonar.host.url=http://13.50.232.101:9000 \
+                    -Dsonar.token="$SONAR_TOKEN"
+                '''
+            }
+        }
+
         stage('Docker Build') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE:latest .'
+                sh '''
+                    docker build -t $DOCKER_IMAGE:latest .
+                '''
             }
         }
 
@@ -51,8 +54,11 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        echo "$DOCKER_PASS" | docker login \
+                        -u "$DOCKER_USER" --password-stdin
+
                         docker push $DOCKER_IMAGE:latest
+
                         docker logout
                     '''
                 }
@@ -67,6 +73,10 @@ pipeline {
 
         failure {
             echo 'Pipeline failed!'
+        }
+
+        always {
+            echo 'Jenkins pipeline execution finished.'
         }
     }
 }
