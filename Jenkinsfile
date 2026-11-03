@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -7,8 +8,8 @@ pipeline {
     }
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
         DOCKER_IMAGE = 'nanducjc123/educationapprepo'
+        SONAR_HOST = 'http://13.50.232.101:9000'
     }
 
     stages {
@@ -26,25 +27,24 @@ pipeline {
             }
         }
 
-
-stage('SonarQube Analysis') {
-    steps {
-        withCredentials([
-            string(
-                credentialsId: 'sonar-token',
-                variable: 'SONAR_TOKEN'
-            )
-        ]) {
-            sh '''
-                mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar \
-                -Dsonar.projectKey=my-project \
-                -Dsonar.projectName=my-project \
-                -Dsonar.host.url=http://13.50.232.101:9000 \
-                -Dsonar.token=$SONAR_TOKEN
-            '''
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'sonar-token',
+                        variable: 'SONAR_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar \
+                        -Dsonar.projectKey=my-project \
+                        -Dsonar.projectName=my-project \
+                        -Dsonar.host.url=$SONAR_HOST \
+                        -Dsonar.token=$SONAR_TOKEN
+                    '''
+                }
+            }
         }
-    }
-}
 
         stage('Docker Build') {
             steps {
@@ -54,14 +54,18 @@ stage('SonarQube Analysis') {
             }
         }
 
-        stage('Docker Push') {
+        stage('Docker Login & Push') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
                     sh '''
+                        set +x
+
                         echo "$DOCKER_PASS" | docker login \
                         -u "$DOCKER_USER" --password-stdin
 
