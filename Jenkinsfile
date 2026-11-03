@@ -10,6 +10,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'nanducjc123/educationapprepo'
         SONAR_HOST = 'http://13.50.232.101:9000'
+        CONTAINER_NAME = 'educationapp'
+        APP_PORT = '8080'
     }
 
     stages {
@@ -76,11 +78,37 @@ pipeline {
                 }
             }
         }
+
+        stage('Docker Pull') {
+            steps {
+                sh '''
+                    docker pull $DOCKER_IMAGE:latest
+                '''
+            }
+        }
+
+        stage('Docker Run / Deploy') {
+            steps {
+                sh '''
+                    docker stop $CONTAINER_NAME || true
+                    docker rm $CONTAINER_NAME || true
+
+                    docker run -d \
+                    --name $CONTAINER_NAME \
+                    --restart unless-stopped \
+                    -p $APP_PORT:8080 \
+                    $DOCKER_IMAGE:latest
+
+                    docker ps
+                '''
+            }
+        }
     }
 
     post {
         success {
             echo 'Pipeline completed successfully!'
+            echo 'Docker application deployed successfully!'
         }
 
         failure {
