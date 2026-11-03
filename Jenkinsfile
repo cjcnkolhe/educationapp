@@ -26,14 +26,17 @@ pipeline {
             }
         }
 
-       stage('SonarQube Analysis') {
+
+stage('SonarQube Analysis') {
     steps {
         withCredentials([
-            string(credentialsId: 'sonar-token',
-                   variable: 'SONAR_TOKEN')
+            string(
+                credentialsId: 'sonar-token',
+                variable: 'SONAR_TOKEN'
+            )
         ]) {
             sh '''
-                mvn sonar:sonar \
+                mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar \
                 -Dsonar.projectKey=my-project \
                 -Dsonar.projectName=my-project \
                 -Dsonar.host.url=http://13.50.232.101:9000 \
